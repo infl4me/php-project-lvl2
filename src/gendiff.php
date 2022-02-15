@@ -84,7 +84,7 @@ function renderDiff($diff)
     return implode("\n", $result);
 }
 
-function gendiff($oldFilepath, $newFilepath)
+function gendiff(string $oldFilepath, string $newFilepath): string
 {
     $oldContents = file_get_contents($oldFilepath);
     $newContents = file_get_contents($newFilepath);

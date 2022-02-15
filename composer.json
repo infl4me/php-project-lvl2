@@ -2,11 +2,13 @@
   "name": "hexlet/code",
   "require": {
     "docopt/docopt": "^1.0",
-    "squizlabs/php_codesniffer": "*"
+    "squizlabs/php_codesniffer": "*",
+    "phpunit/phpunit": "^9.5"
   },
   "autoload": {
     "psr-4": {
-      "Hexlet\\Code\\": "src/"
+      "Hexlet\\Code\\": "src",
+      "Hexlet\\Code\\Tests\\": "tests"
     },
     "files": [
       "src/cli.php",
