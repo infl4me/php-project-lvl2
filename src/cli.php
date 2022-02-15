@@ -3,11 +3,13 @@
 namespace gendiff\cli;
 
 use Docopt;
+use function gendiff\gendiff;
 
 const doc = <<<DOC
 Generate diff
 
 Usage:
+  gendiff <f1> <f2>
   gendiff (-h|--help)
   gendiff (-v|--version)
   gendiff [--format <fmt>]
@@ -24,5 +26,7 @@ function cli()
     $params = array(
         'version' => '1.0',
     );
-    $args = Docopt::handle(doc, $params);
+    ['<f1>' => $filepath1, '<f2>' => $filepath2, '--format' => $format] = Docopt::handle(doc, $params);
+
+    return gendiff($filepath1, $filepath2);
 }
