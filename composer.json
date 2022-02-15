@@ -1,7 +1,8 @@
 {
   "name": "hexlet/code",
   "require": {
-    "docopt/docopt": "^1.0"
+    "docopt/docopt": "^1.0",
+    "squizlabs/php_codesniffer": "*"
   },
   "autoload": {
     "psr-4": {

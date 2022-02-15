@@ -34,9 +34,9 @@ function genJsonDiff($oldRawJson, $newRawJson)
         $type = null;
         if (isset($oldJson[$key]) && !isset($newJson[$key])) {
             $type = 'deleted';
-        } else if (!isset($oldJson[$key]) && isset($newJson[$key])) {
+        } elseif (!isset($oldJson[$key]) && isset($newJson[$key])) {
             $type = 'added';
-        } else if (isset($oldJson[$key]) && isset($newJson[$key])) {
+        } elseif (isset($oldJson[$key]) && isset($newJson[$key])) {
             $type = $oldJson[$key] === $newJson[$key] ? 'unchanged' : 'changed';
         } else {
             unreachable();

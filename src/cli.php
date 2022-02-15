@@ -2,10 +2,7 @@
 
 namespace gendiff\cli;
 
-use Docopt;
-use function gendiff\gendiff;
-
-const doc = <<<DOC
+const DOC = <<<DOC
 Generate diff
 
 Usage:
@@ -24,11 +21,11 @@ DOC;
 function cli()
 {
     $params = ['version' => '1.0'];
-    ['<file1>' => $filepath1, '<file2>' => $filepath2, '--format' => $format] = Docopt::handle(doc, $params);
+    ['<file1>' => $filepath1, '<file2>' => $filepath2, '--format' => $format] = \Docopt::handle(DOC, $params);
 
     if ($filepath1 && $filepath2) {
-        print_r(gendiff($filepath1, $filepath2));
+        print_r(\gendiff\gendiff($filepath1, $filepath2));
     } else {
-        print_r(doc);
+        print_r(DOC);
     }
 }
