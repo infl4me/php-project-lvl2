@@ -3,7 +3,8 @@
   "require": {
     "docopt/docopt": "^1.0",
     "squizlabs/php_codesniffer": "*",
-    "phpunit/phpunit": "^9.5"
+    "phpunit/phpunit": "^9.5",
+    "symfony/yaml": "^5.4"
   },
   "autoload": {
     "psr-4": {
@@ -12,7 +13,9 @@
     },
     "files": [
       "src/cli.php",
-      "src/gendiff.php"
+      "src/gendiff.php",
+      "src/utils.php",
+      "src/parsers/index.php"
     ]
   },
   "bin": "bin/gendiff"

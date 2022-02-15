@@ -2,15 +2,7 @@
 
 namespace gendiff;
 
-const MAX_FILE_LENGTH = 1024 * 1024;
-
-function unreachable()
-{
-    print_r("TRIED TO ACCESS UNREACHABLE CODE\n");
-    exit(-1);
-}
-
-function prepareJsonValue($value)
+function prepareValue($value)
 {
     if ($value === false) {
         return 'false';
@@ -23,30 +15,27 @@ function prepareJsonValue($value)
     return $value;
 }
 
-function genJsonDiff($oldRawJson, $newRawJson)
+function genDiffStruct(array $oldData, array $newData): array
 {
-    $oldJson = json_decode($oldRawJson, true);
-    $newJson = json_decode($newRawJson, true);
+    $union = (array_unique(array_merge(array_keys($oldData), array_keys($newData))));
 
-    $union = (array_unique(array_merge(array_keys($oldJson), array_keys($newJson))));
-
-    return array_reduce($union, function ($acc, $key) use ($oldJson, $newJson) {
+    return array_reduce($union, function ($acc, $key) use ($oldData, $newData) {
         $type = null;
-        if (isset($oldJson[$key]) && !isset($newJson[$key])) {
+        if (isset($oldData[$key]) && !isset($newData[$key])) {
             $type = 'deleted';
-        } elseif (!isset($oldJson[$key]) && isset($newJson[$key])) {
+        } elseif (!isset($oldData[$key]) && isset($newData[$key])) {
             $type = 'added';
-        } elseif (isset($oldJson[$key]) && isset($newJson[$key])) {
-            $type = $oldJson[$key] === $newJson[$key] ? 'unchanged' : 'changed';
+        } elseif (isset($oldData[$key]) && isset($newData[$key])) {
+            $type = $oldData[$key] === $newData[$key] ? 'unchanged' : 'changed';
         } else {
-            unreachable();
+            \utils\unreachable();
         }
 
         $acc[$key] = [
             'type' => $type,
             'name' => $key,
-            'oldValue' => isset($oldJson[$key]) ? prepareJsonValue($oldJson[$key]) : null,
-            'newValue' => isset($newJson[$key]) ? prepareJsonValue($newJson[$key]) : null,
+            'oldValue' => isset($oldData[$key]) ? prepareValue($oldData[$key]) : null,
+            'newValue' => isset($newData[$key]) ? prepareValue($newData[$key]) : null,
         ];
 
         return $acc;
@@ -55,7 +44,7 @@ function genJsonDiff($oldRawJson, $newRawJson)
 
 function renderDiff($diff)
 {
-    $result = array_reduce($diff, function ($acc, $data) use ($diff) {
+    $result = array_reduce($diff, function ($acc, $data) {
         switch ($data['type']) {
             case 'deleted':
                 $acc[] = "  - {$data['name']}: {$data['oldValue']}";
@@ -72,7 +61,7 @@ function renderDiff($diff)
                 break;
 
             default:
-                unreachable();
+                \utils\unreachable();
                 break;
         }
 
@@ -84,10 +73,19 @@ function renderDiff($diff)
     return implode("\n", $result);
 }
 
+function getExtension($filepath)
+{
+    $parts = explode('.', $filepath);
+    return $parts[count($parts) - 1];
+}
+
 function gendiff(string $oldFilepath, string $newFilepath): string
 {
     $oldContents = file_get_contents($oldFilepath);
     $newContents = file_get_contents($newFilepath);
+    $extension = getExtension($oldFilepath);
+    $oldParsedData = \parsers\parse($oldContents, $extension);
+    $newParsedData = \parsers\parse($newContents, $extension);
 
-    return renderDiff(genJsonDiff($oldContents, $newContents));
+    return renderDiff(genDiffStruct($oldParsedData, $newParsedData));
 }
