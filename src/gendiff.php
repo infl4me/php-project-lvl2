@@ -10,57 +10,84 @@ function unreachable()
     exit(-1);
 }
 
-function gen_json_diff($content1, $content2)
+function prepareJsonValue($value)
 {
-    $json1 = json_decode($content1, true);
-    $json2 = json_decode($content2, true);
+    if ($value === false) {
+        return 'false';
+    }
 
-    $union = (array_unique(array_merge(array_keys($json1), array_keys($json2))));
+    if ($value === true) {
+        return 'true';
+    }
 
-    return array_reduce($union, function ($acc, $key) use ($json1, $json2) {
+    return $value;
+}
+
+function genJsonDiff($oldRawJson, $newRawJson)
+{
+    $oldJson = json_decode($oldRawJson, true);
+    $newJson = json_decode($newRawJson, true);
+
+    $union = (array_unique(array_merge(array_keys($oldJson), array_keys($newJson))));
+
+    return array_reduce($union, function ($acc, $key) use ($oldJson, $newJson) {
         $type = null;
-        if (isset($key, $json1) && !isset($key, $json1)) {
+        if (isset($oldJson[$key]) && !isset($newJson[$key])) {
             $type = 'deleted';
-        } else if (!isset($key, $json1) && isset($key, $json1)) {
+        } else if (!isset($oldJson[$key]) && isset($newJson[$key])) {
             $type = 'added';
-        } else if (isset($key, $json1) && isset($key, $json1)) {
-            $type = $json1[$key] === $json2[$key] ? 'unchanged' : 'changed';
+        } else if (isset($oldJson[$key]) && isset($newJson[$key])) {
+            $type = $oldJson[$key] === $newJson[$key] ? 'unchanged' : 'changed';
         } else {
             unreachable();
         }
 
-        $acc[$key] = [$type, 'value' => $json1[$key]];
-        if (isset($key, $json2)) {
-            $acc[$key]['value2'] = $json2[$key];
-        }
-
-        // switch ($type) {
-        //     case 'deleted':
-        //         $acc[$key] = [$type, 'value' => $json1[$key]];
-        //         break;
-        //     case 'added':
-        //         $acc[$key] = [$type, 'value' => $json1[$key]];
-        //         break;
-        //     case 'unchanged':
-        //         # code...
-        //         break;
-        //     case 'changed':
-        //         # code...
-        //         break;
-
-        //     default:
-        //         unreachable();
-        //         break;
-        // }
+        $acc[$key] = [
+            'type' => $type,
+            'name' => $key,
+            'oldValue' => isset($oldJson[$key]) ? prepareJsonValue($oldJson[$key]) : null,
+            'newValue' => isset($newJson[$key]) ? prepareJsonValue($newJson[$key]) : null,
+        ];
 
         return $acc;
     }, []);
 }
 
-function gendiff($filepath1, $filepath2)
+function renderDiff($diff)
 {
-    $file1contents = file_get_contents($filepath1);
-    $file2contents = file_get_contents($filepath2);
-    print_r(gen_json_diff($file1contents, $file2contents));
-    return gen_json_diff($file1contents, $file2contents);
+    $result = array_reduce($diff, function ($acc, $data) use ($diff) {
+        switch ($data['type']) {
+            case 'deleted':
+                $acc[] = "  - {$data['name']}: {$data['oldValue']}";
+                break;
+            case 'added':
+                $acc[] = "  + {$data['name']}: {$data['newValue']}";
+                break;
+            case 'unchanged':
+                $acc[] = "    {$data['name']}: {$data['oldValue']}";
+                break;
+            case 'changed':
+                $acc[] = "  - {$data['name']}: {$data['oldValue']}";
+                $acc[] = "  + {$data['name']}: {$data['newValue']}";
+                break;
+
+            default:
+                unreachable();
+                break;
+        }
+
+        return $acc;
+    }, ['{']);
+
+    $result[] = '}';
+
+    return implode("\n", $result);
+}
+
+function gendiff($oldFilepath, $newFilepath)
+{
+    $oldContents = file_get_contents($oldFilepath);
+    $newContents = file_get_contents($newFilepath);
+
+    return renderDiff(genJsonDiff($oldContents, $newContents));
 }

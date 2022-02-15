@@ -23,10 +23,10 @@ DOC;
 
 function cli()
 {
-    $params = array(
-        'version' => '1.0',
-    );
+    $params = ['version' => '1.0'];
     ['<f1>' => $filepath1, '<f2>' => $filepath2, '--format' => $format] = Docopt::handle(doc, $params);
 
-    return gendiff($filepath1, $filepath2);
+    if ($filepath1 && $filepath2) {
+        print_r(gendiff($filepath1, $filepath2));
+    }
 }
