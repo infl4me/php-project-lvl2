@@ -1,6 +1,6 @@
 <?php
 
-namespace renders\plain;
+namespace formatters\plain;
 
 function prepareValue($value)
 {
@@ -23,7 +23,7 @@ function prepareValue($value)
     return $value;
 }
 
-function renderIter($tree, &$buffer, $path = '')
+function formatIter($tree, &$buffer, $path = '')
 {
     foreach ($tree as $node) {
         $key = $path ? $path . '.' . $node['name'] : $node['name'];
@@ -43,7 +43,7 @@ function renderIter($tree, &$buffer, $path = '')
 
                 break;
             case 'nested':
-                renderIter($node['children'], $buffer, $key);
+                formatIter($node['children'], $buffer, $key);
                 break;
 
             default:
@@ -53,10 +53,10 @@ function renderIter($tree, &$buffer, $path = '')
     }
 }
 
-function render($diff)
+function format($diff)
 {
     $buffer = [];
-    renderIter($diff, $buffer);
+    formatIter($diff, $buffer);
 
     return implode("\n", $buffer);
 }

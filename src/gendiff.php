@@ -42,5 +42,5 @@ function gendiff(string $oldFilepath, string $newFilepath, string $format = 'sty
     $oldParsedData = \parsers\parse($oldContents, $extension);
     $newParsedData = \parsers\parse($newContents, $extension);
 
-    return \renders\renderDiff(genDiffStruct($oldParsedData, $newParsedData), $format);
+    return \formatters\formatDiff(genDiffStruct($oldParsedData, $newParsedData), $format);
 }

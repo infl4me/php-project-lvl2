@@ -1,6 +1,6 @@
 <?php
 
-namespace renders\stylish;
+namespace formatters\stylish;
 
 function prepareValue($value)
 {
@@ -25,12 +25,12 @@ function genDiffSignString($depth, $sign)
     return str_repeat('    ', $depth) . '  ' . $sign . ' ';
 }
 
-function renderJson($name, $data, &$buffer, $depth, $sign)
+function formatJson($name, $data, &$buffer, $depth, $sign)
 {
     $buffer[] = genDiffSignString($depth, $sign) . $name . ': {';
     foreach ($data as $key => $value) {
         if (is_array($value)) {
-            renderJson($key, $value, $buffer, $depth + 1, ' ');
+            formatJson($key, $value, $buffer, $depth + 1, ' ');
         } else {
             $buffer[] = str_repeat('    ', $depth + 2) . $key . ': ' . prepareValue($value);
         }
@@ -38,35 +38,35 @@ function renderJson($name, $data, &$buffer, $depth, $sign)
     $buffer[] = genBracketSting('}', $depth + 1);
 }
 
-function renderNode($node, &$buffer, $depth, $key, $sign)
+function formatNode($node, &$buffer, $depth, $key, $sign)
 {
     if (is_array($node[$key])) {
-        renderJson($node['name'], $node[$key], $buffer, $depth, $sign);
+        formatJson($node['name'], $node[$key], $buffer, $depth, $sign);
     } else {
         $buffer[] = genDiffSignString($depth, $sign) . "{$node['name']}: " . prepareValue($node[$key]);
     }
 }
 
-function renderIter($tree, &$buffer, $depth)
+function formatIter($tree, &$buffer, $depth)
 {
     foreach ($tree as $node) {
         switch ($node['type']) {
             case 'deleted':
-                renderNode($node, $buffer, $depth, 'oldValue', '-');
+                formatNode($node, $buffer, $depth, 'oldValue', '-');
                 break;
             case 'added':
-                renderNode($node, $buffer, $depth, 'newValue', '+');
+                formatNode($node, $buffer, $depth, 'newValue', '+');
                 break;
             case 'unchanged':
-                renderNode($node, $buffer, $depth, 'oldValue', ' ');
+                formatNode($node, $buffer, $depth, 'oldValue', ' ');
                 break;
             case 'changed':
-                renderNode($node, $buffer, $depth, 'oldValue', '-');
-                renderNode($node, $buffer, $depth, 'newValue', '+');
+                formatNode($node, $buffer, $depth, 'oldValue', '-');
+                formatNode($node, $buffer, $depth, 'newValue', '+');
                 break;
             case 'nested':
                 $buffer[] = str_repeat('    ', $depth + 1) . $node['name'] . ': {';
-                renderIter($node['children'], $buffer, $depth + 1);
+                formatIter($node['children'], $buffer, $depth + 1);
                 $buffer[] = str_repeat('    ', $depth + 1) . '}';
                 break;
 
@@ -77,10 +77,10 @@ function renderIter($tree, &$buffer, $depth)
     }
 }
 
-function render($diff)
+function format($diff)
 {
     $buffer = ['{'];
-    renderIter($diff, $buffer, 0);
+    formatIter($diff, $buffer, 0);
     $buffer[] = '}';
 
     return implode("\n", $buffer);
