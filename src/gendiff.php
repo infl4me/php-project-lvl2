@@ -5,6 +5,7 @@ namespace Differ\Differ;
 function genDiffStruct(array $oldData, array $newData): array
 {
     $union = (array_unique(array_merge(array_keys($oldData), array_keys($newData))));
+    sort($union);
 
     return array_reduce($union, function ($acc, $key) use ($oldData, $newData) {
         $type = null;
