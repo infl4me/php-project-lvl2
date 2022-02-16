@@ -18,7 +18,8 @@
       "src/parsers/index.php",
       "src/formatters/index.php",
       "src/formatters/formatPlain.php",
-      "src/formatters/formatStylish.php"
+      "src/formatters/formatStylish.php",
+      "src/formatters/formatJson.php"
     ]
   },
   "bin": "bin/gendiff"

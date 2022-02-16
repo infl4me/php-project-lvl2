@@ -37,4 +37,12 @@ class NestedTest extends TestCase
 
         $this->assertEquals($diff, $expected);
     }
+
+    public function testJsonFormatGendiff(): void
+    {
+        $diff = (\gendiff\gendiff('./tests/fixtures/nested/old.yml', './tests/fixtures/nested/new.yml', 'json'));
+        $expected = file_get_contents('./tests/fixtures/nested/json_expected');
+
+        $this->assertEquals($diff, $expected);
+    }
 }
