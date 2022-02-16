@@ -6,10 +6,9 @@ const DOC = <<<DOC
 Generate diff
 
 Usage:
-  gendiff <file1> <file2>
   gendiff (-h|--help)
   gendiff (-v|--version)
-  gendiff [--format <fmt>]
+  gendiff [--format <fmt>] <file1> <file2>
 
 Options:
   -h --help                     Show this screen
@@ -24,7 +23,7 @@ function cli()
     ['<file1>' => $filepath1, '<file2>' => $filepath2, '--format' => $format] = \Docopt::handle(DOC, $params);
 
     if ($filepath1 && $filepath2) {
-        print_r(\gendiff\gendiff($filepath1, $filepath2));
+        print_r(\gendiff\gendiff($filepath1, $filepath2, $format));
     } else {
         print_r(DOC);
     }

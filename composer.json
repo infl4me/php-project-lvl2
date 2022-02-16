@@ -16,7 +16,9 @@
       "src/gendiff.php",
       "src/utils.php",
       "src/parsers/index.php",
-      "src/renders/index.php"
+      "src/renders/index.php",
+      "src/renders/renderPlain.php",
+      "src/renders/renderStylish.php"
     ]
   },
   "bin": "bin/gendiff"

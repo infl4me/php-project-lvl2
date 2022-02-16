@@ -8,11 +8,11 @@ function genDiffStruct(array $oldData, array $newData): array
 
     return array_reduce($union, function ($acc, $key) use ($oldData, $newData) {
         $type = null;
-        if (isset($oldData[$key]) && !isset($newData[$key])) {
+        if (array_key_exists($key, $oldData) && !array_key_exists($key, $newData)) {
             $type = 'deleted';
-        } elseif (!isset($oldData[$key]) && isset($newData[$key])) {
+        } elseif (!array_key_exists($key, $oldData) && array_key_exists($key, $newData)) {
             $type = 'added';
-        } elseif (isset($oldData[$key]) && isset($newData[$key])) {
+        } elseif (array_key_exists($key, $oldData) && array_key_exists($key, $newData)) {
             if (is_array($oldData[$key]) && is_array($newData[$key])) {
                 $type = 'nested';
             } else {
@@ -25,8 +25,8 @@ function genDiffStruct(array $oldData, array $newData): array
         $acc[$key] = [
             'type' => $type,
             'name' => $key,
-            'oldValue' => isset($oldData[$key]) && $type !== 'nested' ? $oldData[$key] : null,
-            'newValue' => isset($newData[$key]) && $type !== 'nested' ? $newData[$key] : null,
+            'oldValue' => array_key_exists($key, $oldData) && $type !== 'nested' ? $oldData[$key] : null,
+            'newValue' => array_key_exists($key, $newData) && $type !== 'nested' ? $newData[$key] : null,
             'children' => $type === 'nested' ? genDiffStruct($oldData[$key], $newData[$key]) : null,
         ];
 
@@ -34,7 +34,7 @@ function genDiffStruct(array $oldData, array $newData): array
     }, []);
 }
 
-function gendiff(string $oldFilepath, string $newFilepath): string
+function gendiff(string $oldFilepath, string $newFilepath, string $format = 'stylish'): string
 {
     $oldContents = file_get_contents($oldFilepath);
     $newContents = file_get_contents($newFilepath);
@@ -42,5 +42,5 @@ function gendiff(string $oldFilepath, string $newFilepath): string
     $oldParsedData = \parsers\parse($oldContents, $extension);
     $newParsedData = \parsers\parse($newContents, $extension);
 
-    return \renders\renderDiff(genDiffStruct($oldParsedData, $newParsedData));
+    return \renders\renderDiff(genDiffStruct($oldParsedData, $newParsedData), $format);
 }
