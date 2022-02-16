@@ -18,6 +18,7 @@ function parse(string $rawData, string $extension): array
 {
     switch ($extension) {
         case 'yml':
+        case 'yaml':
             return parseYml($rawData);
             break;
         case 'json':
