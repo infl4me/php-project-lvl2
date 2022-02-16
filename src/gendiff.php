@@ -2,19 +2,6 @@
 
 namespace gendiff;
 
-function prepareValue($value)
-{
-    if ($value === false) {
-        return 'false';
-    }
-
-    if ($value === true) {
-        return 'true';
-    }
-
-    return $value;
-}
-
 function genDiffStruct(array $oldData, array $newData): array
 {
     $union = (array_unique(array_merge(array_keys($oldData), array_keys($newData))));
@@ -38,8 +25,8 @@ function genDiffStruct(array $oldData, array $newData): array
         $acc[$key] = [
             'type' => $type,
             'name' => $key,
-            'oldValue' => isset($oldData[$key]) && $type !== 'nested' ? prepareValue($oldData[$key]) : null,
-            'newValue' => isset($newData[$key]) && $type !== 'nested' ? prepareValue($newData[$key]) : null,
+            'oldValue' => isset($oldData[$key]) && $type !== 'nested' ? $oldData[$key] : null,
+            'newValue' => isset($newData[$key]) && $type !== 'nested' ? $newData[$key] : null,
             'children' => $type === 'nested' ? genDiffStruct($oldData[$key], $newData[$key]) : null,
         ];
 
