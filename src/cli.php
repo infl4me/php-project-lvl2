@@ -23,7 +23,7 @@ function cli()
     ['<file1>' => $filepath1, '<file2>' => $filepath2, '--format' => $format] = \Docopt::handle(DOC, $params);
 
     if ($filepath1 && $filepath2) {
-        print_r(\gendiff\gendiff($filepath1, $filepath2, $format));
+        print_r(\Differ\Differ\genDiff($filepath1, $filepath2, $format));
     } else {
         print_r(DOC);
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace gendiff;
+namespace Differ\Differ;
 
 function genDiffStruct(array $oldData, array $newData): array
 {
@@ -34,7 +34,7 @@ function genDiffStruct(array $oldData, array $newData): array
     }, []);
 }
 
-function gendiff(string $oldFilepath, string $newFilepath, string $format = 'stylish'): string
+function genDiff(string $oldFilepath, string $newFilepath, string $format = 'stylish'): string
 {
     $oldContents = file_get_contents($oldFilepath);
     $newContents = file_get_contents($newFilepath);
