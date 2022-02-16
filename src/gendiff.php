@@ -26,7 +26,11 @@ function genDiffStruct(array $oldData, array $newData): array
         } elseif (!isset($oldData[$key]) && isset($newData[$key])) {
             $type = 'added';
         } elseif (isset($oldData[$key]) && isset($newData[$key])) {
-            $type = $oldData[$key] === $newData[$key] ? 'unchanged' : 'changed';
+            if (is_array($oldData[$key]) && is_array($newData[$key])) {
+                $type = 'nested';
+            } else {
+                $type = $oldData[$key] === $newData[$key] ? 'unchanged' : 'changed';
+            }
         } else {
             \utils\unreachable();
         }
@@ -34,58 +38,22 @@ function genDiffStruct(array $oldData, array $newData): array
         $acc[$key] = [
             'type' => $type,
             'name' => $key,
-            'oldValue' => isset($oldData[$key]) ? prepareValue($oldData[$key]) : null,
-            'newValue' => isset($newData[$key]) ? prepareValue($newData[$key]) : null,
+            'oldValue' => isset($oldData[$key]) && $type !== 'nested' ? prepareValue($oldData[$key]) : null,
+            'newValue' => isset($newData[$key]) && $type !== 'nested' ? prepareValue($newData[$key]) : null,
+            'children' => $type === 'nested' ? genDiffStruct($oldData[$key], $newData[$key]) : null,
         ];
 
         return $acc;
     }, []);
 }
 
-function renderDiff($diff)
-{
-    $result = array_reduce($diff, function ($acc, $data) {
-        switch ($data['type']) {
-            case 'deleted':
-                $acc[] = "  - {$data['name']}: {$data['oldValue']}";
-                break;
-            case 'added':
-                $acc[] = "  + {$data['name']}: {$data['newValue']}";
-                break;
-            case 'unchanged':
-                $acc[] = "    {$data['name']}: {$data['oldValue']}";
-                break;
-            case 'changed':
-                $acc[] = "  - {$data['name']}: {$data['oldValue']}";
-                $acc[] = "  + {$data['name']}: {$data['newValue']}";
-                break;
-
-            default:
-                \utils\unreachable();
-                break;
-        }
-
-        return $acc;
-    }, ['{']);
-
-    $result[] = '}';
-
-    return implode("\n", $result);
-}
-
-function getExtension($filepath)
-{
-    $parts = explode('.', $filepath);
-    return $parts[count($parts) - 1];
-}
-
 function gendiff(string $oldFilepath, string $newFilepath): string
 {
     $oldContents = file_get_contents($oldFilepath);
     $newContents = file_get_contents($newFilepath);
-    $extension = getExtension($oldFilepath);
+    $extension = \utils\extractExtension($oldFilepath);
     $oldParsedData = \parsers\parse($oldContents, $extension);
     $newParsedData = \parsers\parse($newContents, $extension);
 
-    return renderDiff(genDiffStruct($oldParsedData, $newParsedData));
+    return \renders\renderDiff(genDiffStruct($oldParsedData, $newParsedData));
 }

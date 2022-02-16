@@ -2,7 +2,7 @@ install:
 	composer install
 
 gendiff:
-	bin/gendiff ./tests/fixtures/plain/old.json ./tests/fixtures/plain/new.json
+	bin/gendiff ./tests/fixtures/nested/old.json ./tests/fixtures/nested/new.json
 
 validate:
 	composer validate

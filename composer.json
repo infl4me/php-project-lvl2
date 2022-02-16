@@ -15,7 +15,8 @@
       "src/cli.php",
       "src/gendiff.php",
       "src/utils.php",
-      "src/parsers/index.php"
+      "src/parsers/index.php",
+      "src/renders/index.php"
     ]
   },
   "bin": "bin/gendiff"
