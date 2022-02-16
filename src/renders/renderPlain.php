@@ -37,7 +37,10 @@ function renderIter($tree, &$buffer, $path = '')
             case 'unchanged':
                 break;
             case 'changed':
-                $buffer[] = "Property '" . $key . "' was updated. From " . prepareValue($node['oldValue']) . " to " . prepareValue($node['newValue']);
+                $buffer[] =
+                "Property '" . $key . "' was updated. From " .
+                prepareValue($node['oldValue']) . " to " . prepareValue($node['newValue']);
+
                 break;
             case 'nested':
                 renderIter($node['children'], $buffer, $key);
